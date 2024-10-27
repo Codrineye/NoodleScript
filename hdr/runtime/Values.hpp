@@ -3,55 +3,73 @@
 // Dependencies
 #include "../backend/AST.hpp"
 
+
 namespace ns {
-	constexpr int numOfNativeFuncs = 17; 
-	extern const char* nativeFuncNames[numOfNativeFuncs]; 
-	class Scope; 
 
-	struct RuntimeValue {
-		ValueType valueType; 
+  /*
+   * Number of native functions
+   * Outputs the names of our native functions
+   * declair a class: scope
+  */
+  constexpr int numOfNativeFuncs = 17;
+  extern const char* nativeFuncNames [numOfNativeFuncs];
+  class Scope;
 
-		virtual ~RuntimeValue() {}; 
-	};
-	struct NullValue : public RuntimeValue {
-		std::string value; 
+  /*
+   * Same as struct in AST.hpp, but
+   * instead of node, we're working with values
+  */
+  struct RuntimeValue {
+    ValueType valueType;
 
-		NullValue();
-	};
-	struct NumValue : public RuntimeValue {
-		double value; 
+    virtual ~RuntimeValue() { };
+  };
 
-		NumValue(); 
-		NumValue(double value); 
-	};
-	struct BoolValue : public RuntimeValue {
-		bool state; 
+  struct NullValue : public RuntimeValue {
+    std::string value;
 
-		BoolValue(); 
-		BoolValue(bool state); 
-	};
-	struct StringValue : public RuntimeValue {
-		std::string value; 
+    NullValue();
+  };
+  struct NumValue : public RuntimeValue {
+    double value;
 
-		StringValue(); 
-		StringValue(const std::string& value); 
-	};
-	struct ListValue : public RuntimeValue {
-		std::vector<RuntimeValue*> elements; 
+    NumValue();
+    NumValue(double value);
+  };
+  struct BoolValue : public RuntimeValue {
+    bool state;
 
-		ListValue(); 
-	};
-	struct FuncValue : public RuntimeValue {
-		std::string name;
-		std::vector<std::string> parameters; 
-		std::vector<Statement*> statements;
-		Scope* scope; 
-		bool nativeFunc; 
+    BoolValue();
+    BoolValue(bool state);
+  };
+  struct StringValue : public RuntimeValue {
+    std::string value;
 
-		FuncValue(); 
-	};
+    StringValue();
+    StringValue(const std::string& value);
+  };
+  struct ListValue : public RuntimeValue {
+    std::vector<RuntimeValue*> elements;
 
-	RuntimeValue* cloneRuntimeValue(RuntimeValue* runtimeValue); 
+    ListValue();
+  };
+  struct FuncValue : public RuntimeValue {
+    std::string name;
+    std::vector<std::string> parameters;
+    std::vector<Statement*> statements;
+    Scope* scope;
+    bool nativeFunc;
 
-	std::ostream& operator<<(std::ostream& ostream, const RuntimeValue* runtimeValue); 
+    FuncValue();
+  };
+
+  /*
+   * Make a copy of the wanted runtime value
+  */
+  RuntimeValue* cloneRuntimeValue(RuntimeValue* runtimeValue);
+
+  /*
+   * Output runtime value
+  */
+  std::ostream& operator<<(std::ostream& ostream, const RuntimeValue* runtimeValue);
 }

@@ -4,26 +4,51 @@
 #include "runtime/Interpreter.hpp"
 
 namespace ns {
-	extern Interpreter interpreter;
-	extern std::string sourceCode;
-	extern std::string terminalInput; 
-	extern bool terminalOpen; 
-	extern bool insideConsole;
-	extern bool jumpToConsole;
+  /*
+   * Internal status properties
+   * Defined to get computed values
+  */
+  extern Interpreter interpreter;
+  extern std::string sourceCode;
+  extern std::string terminalInput;
 
-	void initNoodleScriptMsg(); 
-	void initTerminalMsg(); 
-	void initConsoleMsg(); 
+  /*
+   * Internal checks for user interaction
+   * State of the terminal
+   * the console is just the terminal waiting to
+   * be given access to the editor
+  */
+  extern bool terminalOpen;
+  extern bool insideConsole;
+  extern bool jumpToConsole;
 
-	void prepareTerminalMsg(); 
-	void prepareConsoleMsg(); 
+  /*
+   * Configurable initialiser messages
+  */
+  void initNoodleScriptMsg();
+  void initTerminalMsg();
+  void initConsoleMsg();
 
-	void executeTerminal(const std::string& input); 
-	void executeConsole(const std::string& input); 
+  /*
+   * Functions to format the output to the
+   * "user interface"
+  */
+  void prepareTerminalMsg();
+  void prepareConsoleMsg();
 
-	void initTerminal(int argc, const char** argv); 
-	bool isTerminalOpen(); 
-	void runSourceFile(const std::string& filepath); 
-	void updateTerminal(); 
-	void closeTerminal(); 
+  /*
+   * Helper functions to interact with
+   * internal checks for user interaction
+  */
+  void executeTerminal(const std::string& input);
+  void executeConsole(const std::string& input);
+
+  /*
+   * NoodleScript parsing handler
+  */
+  void initTerminal(int argc, const char** argv);
+  bool isTerminalOpen();
+  void runSourceFile(const std::string& filepath);
+  void updateTerminal();
+  void closeTerminal();
 }

@@ -4,19 +4,51 @@
 #include <iostream>
 
 namespace ns {
-	class Error {
-	public:
-		enum class Location { Lexer, Parser, Interpreter, End } location;
-		int code; 
-		std::string message; 
+  /*
+   * Error handling
+  */
+  class Error {
+  public:
+    /*
+     * Location needed to identify
+     * at which phase the program had
+     * an error
+    */
+    enum class Location { Lexer, Parser, Interpreter, End } location;
 
-		Error();
-		Error(Location location, int code, std::string message); 
+    /*
+     * Error code <code>
+     * and error message
+    */
+    int code;
+    std::string message;
 
-		friend std::ostream& operator<<(std::ostream& ostream, const Error& error);
-	private:
-		static const std::string locations[static_cast<int>(Location::End)]; 
-	};
+    /*
+     * error constructor
+     * error handling function to
+     * print out the location, error code
+     * and error message
+    */
+    Error();
+    Error(Location location, int code, std::string message);
 
-	std::ostream& operator<<(std::ostream& ostream, const Error& error); 
+    /*
+     * token friend to print out the error
+    */
+    friend std::ostream& operator<<(std::ostream& ostream, const Error& error);
+
+  /*
+   * private properties of error
+  */
+  private:
+    /*
+     * string to print out all locations
+    */
+    static const std::string locations [static_cast<int>(Location::End)];
+  };
+
+  /*
+   * stand-alone error printing function
+  */
+  std::ostream& operator<<(std::ostream& ostream, const Error& error);
 }

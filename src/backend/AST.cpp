@@ -2,380 +2,380 @@
 #include "../../hdr/runtime/Values.hpp"
 
 namespace ns {
-	Program::Program() {
-		nodeType = NodeType::Program; 
-	}
-	VarDeclaration::VarDeclaration() : expr(nullptr) {
-		nodeType = NodeType::VarDeclaration; 
-	}
-	FuncDeclaration::FuncDeclaration() : nativeFunc(false) {
-		nodeType = NodeType::FuncDeclaration; 
-	}
-	IfStatement::IfStatement() {
-		nodeType = NodeType::IfStatement; 
-	}
-	WhileStatement::WhileStatement() {
-		nodeType = NodeType::WhileStatement; 
-	}
+  Program::Program() {
+    nodeType = NodeType::Program;
+  }
+  VarDeclaration::VarDeclaration() : expr(nullptr) {
+    nodeType = NodeType::VarDeclaration;
+  }
+  FuncDeclaration::FuncDeclaration() : nativeFunc(false) {
+    nodeType = NodeType::FuncDeclaration;
+  }
+  IfStatement::IfStatement() {
+    nodeType = NodeType::IfStatement;
+  }
+  WhileStatement::WhileStatement() {
+    nodeType = NodeType::WhileStatement;
+  }
 
-	NullLiteral::NullLiteral() {
-		nodeType = NodeType::NullLiteral; 
-	}
-	NumLiteral::NumLiteral() {
-		nodeType = NodeType::NumLiteral; 
-	} 
-	StringLiteral::StringLiteral() {
-		nodeType = NodeType::StringLiteral; 
-	}
-	ListLiteral::ListLiteral() {
-		nodeType = NodeType::ListLiteral; 
-	}
-	Identifier::Identifier() {
-		nodeType = NodeType::Identifier; 
-	}
-	ListAccesser::ListAccesser() : index(0) {
-		nodeType = NodeType::ListAccesser; 
-	}
-	UnaryExpr::UnaryExpr() {
-		nodeType = NodeType::UnaryExpr; 
-	}
-	BinaryExpr::BinaryExpr() {
-		nodeType = NodeType::BinaryExpr; 
-	}
-	AssignmentExpr::AssignmentExpr() {
-		nodeType = NodeType::AssignmentExpr; 
-	}
-	FuncCall::FuncCall() {
-		nodeType = NodeType::FuncCall; 
-	}
+  NullLiteral::NullLiteral() {
+    nodeType = NodeType::NullLiteral;
+  }
+  NumLiteral::NumLiteral() {
+    nodeType = NodeType::NumLiteral;
+  }
+  StringLiteral::StringLiteral() {
+    nodeType = NodeType::StringLiteral;
+  }
+  ListLiteral::ListLiteral() {
+    nodeType = NodeType::ListLiteral;
+  }
+  Identifier::Identifier() {
+    nodeType = NodeType::Identifier;
+  }
+  ListAccesser::ListAccesser() : index(0) {
+    nodeType = NodeType::ListAccesser;
+  }
+  UnaryExpr::UnaryExpr() {
+    nodeType = NodeType::UnaryExpr;
+  }
+  BinaryExpr::BinaryExpr() {
+    nodeType = NodeType::BinaryExpr;
+  }
+  AssignmentExpr::AssignmentExpr() {
+    nodeType = NodeType::AssignmentExpr;
+  }
+  FuncCall::FuncCall() {
+    nodeType = NodeType::FuncCall;
+  }
 
-	std::ostream& operator<<(std::ostream& ostream, const Statement* statement) {
-		static int indentSize = 0; 
-		static bool skipNodeEnd = false; 
+  std::ostream& operator<<(std::ostream& ostream, const Statement* statement) {
+    static int indentSize = 0;
+    static bool skipNodeEnd = false;
 
-		auto indent = [&]() -> void { 
-			ostream << std::string(indentSize * 2, ' '); 
-		};
-		auto printNodeStart = [&](const std::string& nodeType, bool multiLine = false) -> void {
-			ostream << (multiLine ? "{\n" : "{ "); 
-			
-			if (multiLine) {
-				indentSize++;
-				indent();
-			}
+    auto indent = [&]() -> void {
+      ostream << std::string(indentSize * 2, ' ');
+      };
+    auto printNodeStart = [&](const std::string& nodeType, bool multiLine = false) -> void {
+      ostream << (multiLine ? "{\n" : "{ ");
 
-			ostream << "NodeType: \"" << nodeType << "\"";
-		}; 
-		auto printAttribute = [&](const std::string& attribute, const std::string& value, 
-			bool multiLine = false) -> void 
-		{
-			ostream << ","; 
-			ostream << (multiLine ? "\n" : " ");
-			if (multiLine) indent(); 
-			ostream << attribute << ": " << value; 
-		};
-		auto printSubStatement = [&](const std::string& attribute, const Statement* statement, 
-			bool multiLine = false) -> void 
-		{
-			ostream << ",";
-			ostream << (multiLine ? "\n" : " ");
-			if (multiLine) indent();
-			ostream << attribute << ": " << statement;
-		}; 
-		auto printNodeEnd = [&](bool multiLine = false) -> void {
-			if (skipNodeEnd) {
-				ostream << " }"; 
-				skipNodeEnd = false; 
-				return; 
-			}
+      if (multiLine) {
+        indentSize++;
+        indent();
+      }
 
-			if (multiLine) {
-				indentSize--;
-				indent();
-				ostream << "},\n";
-			}
-			else ostream << " },\n"; 
-		};
+      ostream << "NodeType: \"" << nodeType << "\"";
+      };
+    auto printAttribute = [&](const std::string& attribute, const std::string& value,
+      bool multiLine = false) -> void
+      {
+        ostream << ",";
+        ostream << (multiLine ? "\n" : " ");
+        if (multiLine) indent();
+        ostream << attribute << ": " << value;
+      };
+    auto printSubStatement = [&](const std::string& attribute, const Statement* statement,
+      bool multiLine = false) -> void
+      {
+        ostream << ",";
+        ostream << (multiLine ? "\n" : " ");
+        if (multiLine) indent();
+        ostream << attribute << ": " << statement;
+      };
+    auto printNodeEnd = [&](bool multiLine = false) -> void {
+      if (skipNodeEnd) {
+        ostream << " }";
+        skipNodeEnd = false;
+        return;
+      }
 
-		if (statement == nullptr) return ostream; 
+      if (multiLine) {
+        indentSize--;
+        indent();
+        ostream << "},\n";
+      }
+      else ostream << " },\n";
+      };
 
-		switch (statement->nodeType) {
-		case NodeType::Program:
-		{
-			const Program* program = dynamic_cast<const Program*>(statement);
+    if (statement == nullptr) return ostream;
 
-			printNodeStart("Program", true); 
+    switch (statement->nodeType) {
+    case NodeType::Program:
+    {
+      const Program* program = dynamic_cast<const Program*>(statement);
 
-			ostream << ",\n"; 
-			indent(); 
-			ostream << "Statements: [\n";
-			indentSize++; 
+      printNodeStart("Program", true);
 
-			for (auto& statement : program->statements) {
-				indent(); 
-				ostream << statement;
-			}
+      ostream << ",\n";
+      indent();
+      ostream << "Statements: [\n";
+      indentSize++;
 
-			indentSize--; 
-			indent(); 
-			ostream << "]\n"; 
-			
-			printNodeEnd(true);
-			break; 
-		}
-		case NodeType::VarDeclaration:
-		{
-			const VarDeclaration* varDeclaration = dynamic_cast<const VarDeclaration*>(statement); 
+      for (auto& statement : program->statements) {
+        indent();
+        ostream << statement;
+      }
 
-			printNodeStart("NoodleDeclaration", true); 
-			printAttribute("Constant", (varDeclaration->constant ? "true" : "false"), true); 
-			printAttribute(
-				"ValueType", std::to_string(static_cast<int>(varDeclaration->valueType)), true
-			);
-			printAttribute("Identifier", "\"" + varDeclaration->identifier + "\"", true);
-			printSubStatement("Expr", varDeclaration->expr, true); 
-			printNodeEnd(true); 
-			break; 
-		}
-		case NodeType::FuncDeclaration:
-		{
-			const FuncDeclaration* funcDeclaration = dynamic_cast<const FuncDeclaration*>(statement); 
-			
-			printNodeStart("RecipeDeclaration", true); 
-			printAttribute("Name", "\"" + funcDeclaration->name + "\"", true);
-			
-			ostream << ",\n"; 
-			indent(); 
-			ostream << "Parameters: [\n"; 
-			indentSize++; 
+      indentSize--;
+      indent();
+      ostream << "]\n";
 
-			for (auto& parameter : funcDeclaration->parameters) {
-				indent(); 
-				ostream << "Name: \"" << parameter << "\",\n";
-			}
+      printNodeEnd(true);
+      break;
+    }
+    case NodeType::VarDeclaration:
+    {
+      const VarDeclaration* varDeclaration = dynamic_cast<const VarDeclaration*>(statement);
 
-			indentSize--;
-			indent();
-			ostream << "]";
+      printNodeStart("NoodleDeclaration", true);
+      printAttribute("Constant", (varDeclaration->constant ? "true" : "false"), true);
+      printAttribute(
+        "ValueType", std::to_string(static_cast<int>(varDeclaration->valueType)), true
+      );
+      printAttribute("Identifier", "\"" + varDeclaration->identifier + "\"", true);
+      printSubStatement("Expr", varDeclaration->expr, true);
+      printNodeEnd(true);
+      break;
+    }
+    case NodeType::FuncDeclaration:
+    {
+      const FuncDeclaration* funcDeclaration = dynamic_cast<const FuncDeclaration*>(statement);
 
-			ostream << ",\n";
-			indent();
-			ostream << "Statements: [\n";
-			indentSize++;
-			
-			for (auto& statement : funcDeclaration->statements) {
-				indent(); 
-				ostream << statement; 
-			}
-			
-			indentSize--;
-			indent();
-			ostream << "]\n";
+      printNodeStart("RecipeDeclaration", true);
+      printAttribute("Name", "\"" + funcDeclaration->name + "\"", true);
 
-			printNodeEnd(true); 
-			break; 
-		}
-		case NodeType::IfStatement:
-		{
-			const IfStatement* ifStatement = dynamic_cast<const IfStatement*>(statement); 
+      ostream << ",\n";
+      indent();
+      ostream << "Parameters: [\n";
+      indentSize++;
 
-			printNodeStart("IfStatement", true); 
-			printSubStatement("Condition", ifStatement->condition, true); 
+      for (auto& parameter : funcDeclaration->parameters) {
+        indent();
+        ostream << "Name: \"" << parameter << "\",\n";
+      }
 
-			indent();
-			ostream << "IfStatements: [\n";
-			indentSize++;
+      indentSize--;
+      indent();
+      ostream << "]";
 
-			for (auto& statement : ifStatement->ifStatements) {
-				indent();
-				ostream << statement;
-			}
+      ostream << ",\n";
+      indent();
+      ostream << "Statements: [\n";
+      indentSize++;
 
-			indentSize--;
-			indent();
-			ostream << "],\n";
+      for (auto& statement : funcDeclaration->statements) {
+        indent();
+        ostream << statement;
+      }
 
-			indent();
-			ostream << "ElseStatements: [\n";
-			indentSize++;
+      indentSize--;
+      indent();
+      ostream << "]\n";
 
-			for (auto& statement : ifStatement->elseStatements) {
-				indent();
-				ostream << statement;
-			}
+      printNodeEnd(true);
+      break;
+    }
+    case NodeType::IfStatement:
+    {
+      const IfStatement* ifStatement = dynamic_cast<const IfStatement*>(statement);
 
-			indentSize--;
-			indent();
-			ostream << "]\n"; 
+      printNodeStart("IfStatement", true);
+      printSubStatement("Condition", ifStatement->condition, true);
 
-			printNodeEnd(true);
-			break; 
-		}
-		case NodeType::WhileStatement:
-		{
-			const WhileStatement* whileStatement = dynamic_cast<const WhileStatement*>(statement); 
+      indent();
+      ostream << "IfStatements: [\n";
+      indentSize++;
 
-			printNodeStart("WhileStatement", true); 
-			printSubStatement("Condition", whileStatement->condition, true); 
+      for (auto& statement : ifStatement->ifStatements) {
+        indent();
+        ostream << statement;
+      }
 
-			indent();
-			ostream << "Statements: [\n";
-			indentSize++;
+      indentSize--;
+      indent();
+      ostream << "],\n";
 
-			for (auto& statement : whileStatement->statements) {
-				indent();
-				ostream << statement;
-			}
+      indent();
+      ostream << "ElseStatements: [\n";
+      indentSize++;
 
-			indentSize--;
-			indent();
-			ostream << "]\n";
+      for (auto& statement : ifStatement->elseStatements) {
+        indent();
+        ostream << statement;
+      }
 
-			printNodeEnd(true); 
-			break; 
-		}
-		case NodeType::NullLiteral:
-		{
-			const NullLiteral* nullLiteral = dynamic_cast<const NullLiteral*>(statement); 
+      indentSize--;
+      indent();
+      ostream << "]\n";
 
-			printNodeStart("NullLiteral");
-			printNodeEnd(); 
-			break; 
-		}
-		case NodeType::NumLiteral:
-		{
-			const NumLiteral* numLiteral = dynamic_cast<const NumLiteral*>(statement); 
+      printNodeEnd(true);
+      break;
+    }
+    case NodeType::WhileStatement:
+    {
+      const WhileStatement* whileStatement = dynamic_cast<const WhileStatement*>(statement);
 
-			printNodeStart("NumLiteral");
-			printAttribute("Value", std::to_string(numLiteral->value)); 
-			printNodeEnd(); 
-			break;
-		}
-		case NodeType::StringLiteral:
-		{
-			const StringLiteral* stringLiteral = dynamic_cast<const StringLiteral*>(statement); 
+      printNodeStart("WhileStatement", true);
+      printSubStatement("Condition", whileStatement->condition, true);
 
-			std::string value = stringLiteral->value; 
-			unprocessEscapeCharacters(value); 
+      indent();
+      ostream << "Statements: [\n";
+      indentSize++;
 
-			printNodeStart("StringLiteral"); 
-			printAttribute("Value", value + "\"");
-			printNodeEnd(); 
-			break; 
-		}
-		case NodeType::ListLiteral:
-		{
-			const ListLiteral* listLiteral = dynamic_cast<const ListLiteral*>(statement); 
+      for (auto& statement : whileStatement->statements) {
+        indent();
+        ostream << statement;
+      }
 
-			printNodeStart("ListLiteral", true); 
+      indentSize--;
+      indent();
+      ostream << "]\n";
 
-			ostream << ",\n";
-			indent();
-			ostream << "Elements: [\n";
-			indentSize++;
+      printNodeEnd(true);
+      break;
+    }
+    case NodeType::NullLiteral:
+    {
+      const NullLiteral* nullLiteral = dynamic_cast<const NullLiteral*>(statement);
 
-			for (auto& element : listLiteral->elements) {
-				indent();
-				ostream << element;
-			}
+      printNodeStart("NullLiteral");
+      printNodeEnd();
+      break;
+    }
+    case NodeType::NumLiteral:
+    {
+      const NumLiteral* numLiteral = dynamic_cast<const NumLiteral*>(statement);
 
-			indentSize--;
-			indent();
-			ostream << "]";
-			ostream << "\n";
+      printNodeStart("NumLiteral");
+      printAttribute("Value", std::to_string(numLiteral->value));
+      printNodeEnd();
+      break;
+    }
+    case NodeType::StringLiteral:
+    {
+      const StringLiteral* stringLiteral = dynamic_cast<const StringLiteral*>(statement);
 
-			printNodeEnd(true); 
-			break; 
-		}
-		case NodeType::Identifier:
-		{
-			const Identifier* identifier = dynamic_cast<const Identifier*>(statement);
+      std::string value = stringLiteral->value;
+      unprocessEscapeCharacters(value);
 
-			printNodeStart("Identifier");
-			printAttribute("Name", "\"" + identifier->name + "\"");
-			printNodeEnd();
-			break;
-		}
-		case NodeType::ListAccesser:
-		{
-			const ListAccesser* listAccesser = dynamic_cast<const ListAccesser*>(statement); 
-			
-			printNodeStart("ListAccesser"); 
-			printAttribute("Name", "\"" + listAccesser->name + "\""); 
-			printAttribute("Index", std::to_string(listAccesser->index)); 
-			printNodeEnd(); 
-			break; 
-		}
-		case NodeType::UnaryExpr:
-		{
-			const UnaryExpr* unaryExpr = dynamic_cast<const UnaryExpr*>(statement); 
+      printNodeStart("StringLiteral");
+      printAttribute("Value", value + "\"");
+      printNodeEnd();
+      break;
+    }
+    case NodeType::ListLiteral:
+    {
+      const ListLiteral* listLiteral = dynamic_cast<const ListLiteral*>(statement);
 
-			printNodeStart("UnaryExpr", true);
-			skipNodeEnd = true;
-			printSubStatement("Expr", unaryExpr->expr, true); 
-			printAttribute("Operator", "\"" + unaryExpr->operation + "\"", true);
-			ostream << "\n";
-			printNodeEnd(true); 
-			break; 
-		}
-		case NodeType::BinaryExpr:
-		{
-			const BinaryExpr* binaryExpr = dynamic_cast<const BinaryExpr*>(statement); 
+      printNodeStart("ListLiteral", true);
 
-			printNodeStart("BinaryExpr", true);
-			skipNodeEnd = true;
-			printSubStatement("LeftExpr", binaryExpr->leftExpr, true);
-			skipNodeEnd = true;
-			printSubStatement("RightExpr", binaryExpr->rightExpr, true);
-			printAttribute("Operator", "\"" + binaryExpr->operation + "\"", true);
-			ostream << "\n";
-			printNodeEnd(true);
-			break; 
-		}
-		case NodeType::AssignmentExpr:
-		{
-			const AssignmentExpr* assignmentExpr = dynamic_cast<const AssignmentExpr*>(statement);
+      ostream << ",\n";
+      indent();
+      ostream << "Elements: [\n";
+      indentSize++;
 
-			printNodeStart("AssignmentExpr", true); 
-			skipNodeEnd = true;
-			printSubStatement("Assigne", assignmentExpr->assigne, true); 
-			skipNodeEnd = true;
-			printSubStatement("Value", assignmentExpr->value, true); 
-			ostream << "\n";
-			printNodeEnd(true); 
-			break; 
-		}
-		case NodeType::FuncCall:
-		{
-			const FuncCall* funcCall = dynamic_cast<const FuncCall*>(statement); 
+      for (auto& element : listLiteral->elements) {
+        indent();
+        ostream << element;
+      }
 
-			printNodeStart("RecipeCall", true); 
-			printAttribute("Name", funcCall->caller, true); 
-			
-			ostream << ",\n";
-			indent();
-			ostream << "Arguments: [\n";
-			indentSize++;
+      indentSize--;
+      indent();
+      ostream << "]";
+      ostream << "\n";
 
-			for (auto& argument : funcCall->arguments) {
-				indent();
-				ostream << argument; 
-			}
+      printNodeEnd(true);
+      break;
+    }
+    case NodeType::Identifier:
+    {
+      const Identifier* identifier = dynamic_cast<const Identifier*>(statement);
 
-			indentSize--;
-			indent();
-			ostream << "]";
-			ostream << "\n"; 
+      printNodeStart("Identifier");
+      printAttribute("Name", "\"" + identifier->name + "\"");
+      printNodeEnd();
+      break;
+    }
+    case NodeType::ListAccesser:
+    {
+      const ListAccesser* listAccesser = dynamic_cast<const ListAccesser*>(statement);
 
-			printNodeEnd(true);
-		}
-			break; 
-		default:
-			ostream << "Unrecognized statement " << static_cast<int>(statement->nodeType);
-			ostream << "\n"; 
-			break; 
-		}
+      printNodeStart("ListAccesser");
+      printAttribute("Name", "\"" + listAccesser->name + "\"");
+      printAttribute("Index", std::to_string(listAccesser->index));
+      printNodeEnd();
+      break;
+    }
+    case NodeType::UnaryExpr:
+    {
+      const UnaryExpr* unaryExpr = dynamic_cast<const UnaryExpr*>(statement);
 
-		return ostream; 
-	}
+      printNodeStart("UnaryExpr", true);
+      skipNodeEnd = true;
+      printSubStatement("Expr", unaryExpr->expr, true);
+      printAttribute("Operator", "\"" + unaryExpr->operation + "\"", true);
+      ostream << "\n";
+      printNodeEnd(true);
+      break;
+    }
+    case NodeType::BinaryExpr:
+    {
+      const BinaryExpr* binaryExpr = dynamic_cast<const BinaryExpr*>(statement);
+
+      printNodeStart("BinaryExpr", true);
+      skipNodeEnd = true;
+      printSubStatement("LeftExpr", binaryExpr->leftExpr, true);
+      skipNodeEnd = true;
+      printSubStatement("RightExpr", binaryExpr->rightExpr, true);
+      printAttribute("Operator", "\"" + binaryExpr->operation + "\"", true);
+      ostream << "\n";
+      printNodeEnd(true);
+      break;
+    }
+    case NodeType::AssignmentExpr:
+    {
+      const AssignmentExpr* assignmentExpr = dynamic_cast<const AssignmentExpr*>(statement);
+
+      printNodeStart("AssignmentExpr", true);
+      skipNodeEnd = true;
+      printSubStatement("Assigne", assignmentExpr->assigne, true);
+      skipNodeEnd = true;
+      printSubStatement("Value", assignmentExpr->value, true);
+      ostream << "\n";
+      printNodeEnd(true);
+      break;
+    }
+    case NodeType::FuncCall:
+    {
+      const FuncCall* funcCall = dynamic_cast<const FuncCall*>(statement);
+
+      printNodeStart("RecipeCall", true);
+      printAttribute("Name", funcCall->caller, true);
+
+      ostream << ",\n";
+      indent();
+      ostream << "Arguments: [\n";
+      indentSize++;
+
+      for (auto& argument : funcCall->arguments) {
+        indent();
+        ostream << argument;
+      }
+
+      indentSize--;
+      indent();
+      ostream << "]";
+      ostream << "\n";
+
+      printNodeEnd(true);
+    }
+    break;
+    default:
+      ostream << "Unrecognized statement " << static_cast<int>(statement->nodeType);
+      ostream << "\n";
+      break;
+    }
+
+    return ostream;
+  }
 }

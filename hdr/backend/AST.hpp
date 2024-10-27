@@ -4,131 +4,218 @@
 #include "Lexer.hpp"
 
 namespace ns {
-	enum class NodeType {
-		// Statements
-		Program,
-		VarDeclaration,
-		FuncDeclaration,
-		IfStatement,
-		WhileStatement,
+  enum class NodeType {
+    // Statements
+    Program,
+    VarDeclaration,
+    FuncDeclaration,
+    IfStatement,
+    WhileStatement,
 
-		// Expressions
-		NullLiteral,
-		NumLiteral,
-		StringLiteral,
-		ListLiteral,
-		Identifier,
-		ListAccesser, 
-		UnaryExpr, 
-		BinaryExpr,
-		AssignmentExpr, 
-		FuncCall
-	};
-	enum class ValueType {
-		Null,
-		Number,
-		Bool,
-		String,
-		List, 
-		FuncValue
-	};
+    // Expressions
+    NullLiteral,
+    NumLiteral,
+    StringLiteral,
+    ListLiteral,
+    Identifier,
+    ListAccesser,
+    UnaryExpr,
+    BinaryExpr,
+    AssignmentExpr,
+    FuncCall
+  };
+  /*
+   * Express the types of nodes
+   * being worked with
+  */
+  enum class ValueType {
+    Null,
+    Number,
+    Bool,
+    String,
+    List,
+    FuncValue
+  };
+  /*
+   * Express the types of values
+   * being worked with
+  */
 
-	struct Statement {
-		NodeType nodeType; 
+  /*
+   * Struct for nodes of type Statement
+   * virtual destructor for propper statement cleanup
+  */
+  struct Statement {
+    NodeType nodeType;
 
-		virtual ~Statement() {}
-	};
-	struct Expr : public Statement {};
+    virtual ~Statement() { }
+  };
 
-	struct Program : public Statement {
-		std::vector<Statement*> statements; 
+  /*
+   * Struct for expressions
+   * in nodes of type Statement
+  */
+  struct Expr : public Statement { };
 
-		Program(); 
-	};
-	struct VarDeclaration : public Statement {
-		bool constant; 
-		ValueType valueType; 
-		std::string identifier; 
-		Expr* expr; 
+  /*
+   * Struct for Statements inside
+   * of a program
+  */
+  struct Program : public Statement {
+    std::vector<Statement*> statements;
 
-		VarDeclaration(); 
-	};
-	struct FuncDeclaration : public Statement {
-		std::string name; 
-		bool nativeFunc; 
-		std::vector<std::string> parameters; 
-		std::vector<Statement*> statements; 
+    Program();
+  };
 
-		FuncDeclaration(); 
-	};
-	struct IfStatement : public Statement {
-		Expr* condition; 
-		std::vector<Statement*> ifStatements;
-		std::vector<Statement*> elseStatements; 
+  /*
+   * Struct for variables
+   * of type <value type>
+  */
+  struct VarDeclaration : public Statement {
+    bool constant;
+    ValueType valueType;
+    std::string identifier;
+    Expr* expr;
 
-		IfStatement(); 
-	};
-	struct WhileStatement : public Statement {
-		Expr* condition; 
-		std::vector<Statement*> statements; 
+    VarDeclaration();
+  };
 
-		WhileStatement(); 
-	};
+  /*
+   * Struct for functions
+   * Permits the assignment of multiple parameters
+   * and statements (function definition)
+  */
+  struct FuncDeclaration : public Statement {
+    std::string name;
+    bool nativeFunc;
+    std::vector<std::string> parameters;
+    std::vector<Statement*> statements;
 
-	struct NullLiteral : public Expr {
-		NullLiteral(); 
-	};
-	struct NumLiteral : public Expr {
-		double value; 
+    FuncDeclaration();
+  };
 
-		NumLiteral(); 
-	};
-	struct StringLiteral : public Expr {
-		std::string value; 
+  /*
+   * Struct for <if> statement
+  */
+  struct IfStatement : public Statement {
+    Expr* condition;
+    std::vector<Statement*> ifStatements;
+    std::vector<Statement*> elseStatements;
 
-		StringLiteral();
-	};
-	struct ListLiteral : public Expr {
-		std::vector<Expr*> elements; 
+    IfStatement();
+  };
 
-		ListLiteral(); 
-	};
-	struct Identifier : public Expr {
-		std::string name; 
+  /*
+   * Struct for <while> statement
+  */
+  struct WhileStatement : public Statement {
+    Expr* condition;
+    std::vector<Statement*> statements;
 
-		Identifier(); 
-	};
-	struct ListAccesser : public Expr {
-		std::string name; 
-		int index; 
+    WhileStatement();
+  };
 
-		ListAccesser(); 
-	};
-	struct UnaryExpr : public Expr {
-		Expr* expr; 
-		std::string operation; 
+  /*
+   * Struct for <NULLptr> expr
+  */
+  struct NullLiteral : public Expr {
+    NullLiteral();
+  };
 
-		UnaryExpr(); 
-	};
-	struct BinaryExpr : public Expr {
-		Expr* leftExpr;
-		Expr* rightExpr;
-		std::string operation;
+  /*
+   * Struct for a Lnumber expr
+  */
+  struct NumLiteral : public Expr {
+    double value;
 
-		BinaryExpr(); 
-	};
-	struct AssignmentExpr : public Expr {
-		Expr* assigne; 
-		Expr* value; 
+    NumLiteral();
+  };
 
-		AssignmentExpr(); 
-	};
-	struct FuncCall : public Expr {
-		std::string caller; 
-		std::vector<Expr*> arguments; 
+  /*
+   * Struct for a Lstring expr
+  */
+  struct StringLiteral : public Expr {
+    std::string value;
 
-		FuncCall(); 
-	};
+    StringLiteral();
+  };
 
-	std::ostream& operator<<(std::ostream& ostream, const Statement* statement); 
+  /*
+   * Struct for a Llist expr
+  */
+  struct ListLiteral : public Expr {
+    std::vector<Expr*> elements;
+
+    ListLiteral();
+  };
+
+  /*
+   * Struct for an Identifier expr
+  */
+  struct Identifier : public Expr {
+    std::string name;
+
+    Identifier();
+  };
+
+  /*
+   * Struct for List Accessor expr
+   * arr[5] = accessor
+  */
+  struct ListAccesser : public Expr {
+    std::string name;
+    int index;
+
+    ListAccesser();
+  };
+
+  /*
+   * Struct for Unary expr
+   * How Unary operations are performed
+  */
+  struct UnaryExpr : public Expr {
+    Expr* expr;
+    std::string operation;
+
+    UnaryExpr();
+  };
+
+  /*
+   * Struct for Binary expr
+   * How Binary operations are performed
+  */
+  struct BinaryExpr : public Expr {
+    Expr* leftExpr;
+    Expr* rightExpr;
+    std::string operation;
+
+    BinaryExpr();
+  };
+
+  /*
+   * Struct for Assignment expr
+   * how to assign a value
+  */
+  struct AssignmentExpr : public Expr {
+    Expr* assigne;
+    Expr* value;
+
+    AssignmentExpr();
+  };
+
+  /*
+   * Struct for Function call expr
+   * permit calling a declaired function
+  */
+  struct FuncCall : public Expr {
+    std::string caller;
+    std::vector<Expr*> arguments;
+
+    FuncCall();
+  };
+
+  /*
+   * Output a statement
+  */
+  std::ostream& operator<<(std::ostream& ostream, const Statement* statement);
 }

@@ -2,320 +2,355 @@
 #include "../../hdr/util/Error.hpp"
 
 namespace ns {
-	TokenIdentifier TokenIdentifier::tokenIdentifiers[static_cast<int>(TokenType::Invalid)] = {
-		{ {} },
-		{ {} },
-		{ {} },
-		{ { "frozen" } },
-		{ { "noodle" } },
-		{ { "recipe" } },
-		{ { "eat" } },
-		{ { "if" } },
-		{ { "else" } },
-		{ { "while" } },
-		{ { "=" } },
-		{ { "++", "--", "!" } },
-		{ { "+", "-", "*", "/", "%", "==", "!=", ">", "<", ">=", "<=", "**", "&&", "||" } },
-		{ { "(" } },
-		{ { ")" } },
-		{ { "[" } },
-		{ { "]" } }, 
-		{ {} },
-		{ { "#" } },
-		{ { "\n", "\r", ";" } }
-	};
+  /*
+   * Define all tokens until you reach type Invalid
+  */
+  TokenIdentifier TokenIdentifier::tokenIdentifiers [static_cast<int>(TokenType::Invalid)] = {
+    { {} },
+    { {} },
+    { {} },
+    { { "frozen" } },
+    { { "noodle" } },
+    { { "recipe" } },
+    { { "eat" } },
+    { { "if" } },
+    { { "else" } },
+    { { "while" } },
+    { { "=" } },
+    { { "++", "--", "!" } },
+    { { "+", "-", "*", "/", "%", "==", "!=", ">", "<", ">=", "<=", "**", "&&", "||" } },
+    { { "(" } },
+    { { ")" } },
+    { { "[" } },
+    { { "]" } },
+    { {} },
+    { { "#" } },
+    { { "\n", "\r", ";" } }
+  };
 
-	void processEscapeCharacters(std::string& string) {
-		for (int chrIndex = 0; chrIndex < string.size(); chrIndex++) {
-			const char chr = string[chrIndex]; 
+  void processEscapeCharacters(std::string& string) {
+    /*
+     * Function for processing escape characters
+    */
+    for (int chrIndex = 0; chrIndex < string.size(); chrIndex++) {
+      // Analyze every character in the input string
+      const char chr = string [chrIndex];
 
-			// Checks for potential escape characters if a slash is found
-			if (chr == '\\' && chrIndex < string.size() - 1) {
-				const char nextChr = string[chrIndex + 1]; 
-				
-				char replacementChr = ' ';
+      // Checks for potential escape characters if a slash is found
+      if (chr == '\\' && chrIndex < string.size() - 1) {
+        const char nextChr = string [chrIndex + 1];
 
-				// Replace specific characters with escape characters
-				switch (nextChr) {
-				case 'n':
-					replacementChr = '\n'; 
-					break; 
-				case 't':
-					replacementChr = '\t'; 
-					break; 
-				}
+        char replacementChr = ' ';
 
-				if (replacementChr != ' ') {
-					// Set the slash character to the escape character
-					string[chrIndex] = replacementChr; 
-					// Erase the extra character
-					string.erase(string.begin() + chrIndex + 1); 
-				}
-			}
-		}
-	}
-	void unprocessEscapeCharacters(std::string& string) {
-		for (int chrIndex = 0; chrIndex < string.size(); chrIndex++) {
-			const char chr = string[chrIndex]; 
-			
-			std::string insertionString; 
+        // Replace specific characters with escape characters
+        switch (nextChr) {
+        case 'n':
+          replacementChr = '\n';
+          break;
+        case 't':
+          replacementChr = '\t';
+          break;
+        }
 
-			// Replace specific escape characters with their visual text representation
-			switch (chr) {
-			case '\n':
-				insertionString = "\\n"; 
-				break; 
-			case '\t':
-				insertionString = "\\t"; 
-				break; 
-			}
+        if (replacementChr != ' ') {
+          // Set the slash character to the escape character
+          string [chrIndex] = replacementChr;
+          // Erase the extra character
+          string.erase(string.begin() + chrIndex + 1);
+        }
+      }
+    }
+  }
 
-			if (!insertionString.empty()) {
-				// Erase the escape character
-				string.erase(string.begin() + chrIndex); 
-				// Insert new string
-				string.insert(chrIndex, insertionString); 
-				chrIndex++; 
-			}
-		}
-	}
-	std::string extractNextIdentifier(std::string& line, char seperator) {
-		// Characters that are irrelevent to lexing, and are thus skipped over
-		const char skippableChrs[] = { ' ', '\t', '\0' };
-		// Charactes that cannot be chained with other characters
-		const char nonChainableChrs[] = { '(', ')', '[', ']' };
-		enum class IdentifierType { Alpha, Numeric, Symbolic, Unknown };
+  void unprocessEscapeCharacters(std::string& string) {
+    /*
+     * Function to not process escape characters
+    */
+    for (int chrIndex = 0; chrIndex < string.size(); chrIndex++) {
+      // Analyze each character in the input string
+      const char chr = string [chrIndex];
 
-		auto isSkippableChar = [&skippableChrs](char chr) -> bool {
-			for (auto skippableChr : skippableChrs) {
-				if (skippableChr == chr)
-					return true;
-			}
+      std::string insertionString;
 
-			return false;
-		};
-		auto isUnchainableChar = [&nonChainableChrs](char chr) -> bool {
-			for (auto nonChainableChr : nonChainableChrs) {
-				if (nonChainableChr == chr)
-					return true; 
-			}
+      // Replace specific escape characters with their visual text representation
+      switch (chr) {
+      case '\n':
+        insertionString = "\\n";
+        break;
+      case '\t':
+        insertionString = "\\t";
+        break;
+      }
 
-			return false; 
-		}; 
-		auto determineIdentifierType = [](char chr) -> IdentifierType {
-			return (chr == '_' || (chr >= 'A' && chr <= 'Z') // _ A-Z a-z
-					|| (chr >= 'a' && chr <= 'z')) ? IdentifierType::Alpha 
-				: ((chr == '.'|| chr == '-' || (chr >= '0' && chr <= '9')  // . 0-9
-					? IdentifierType::Numeric : IdentifierType::Symbolic)); 
-		}; 
+      if (!insertionString.empty()) {
+        // Erase the escape character
+        string.erase(string.begin() + chrIndex);
+        // Insert new string
+        string.insert(chrIndex, insertionString);
+        chrIndex++;
+      }
+    }
+  }
 
-		IdentifierType identifierType = IdentifierType::Unknown; 
-		std::string nextIdentifier;
-		size_t nextIdentifierEnd = 0;
-		bool isString = false; 
-		bool isComment = false; 
+  std::string extractNextIdentifier(std::string& line, char seperator) {
+    // Characters that are irrelevent to lexing, and are thus skipped over
+    const char skippableChrs[] = { ' ', '\t', '\0' };
 
-		for (auto chr : line) {
-			if (isComment) {
-				nextIdentifierEnd++;
+    // Charactes that cannot be chained with other characters
+    const char nonChainableChrs[] = { '(', ')', '[', ']' };
+    enum class IdentifierType { Alpha, Numeric, Symbolic, Unknown };
 
-				if (chr == '\n')
-					break;
+    auto isSkippableChar = [&skippableChrs](char chr) -> bool {
+      /*
+       * check if chr is part of skippableChrs
+      */
+      for (auto skippableChr : skippableChrs) {
+        if (skippableChr == chr)
+          return true;
+      }
 
-				continue;
-			}
+      return false;
+      };
 
-			if (isUnchainableChar(chr)) {
-				if (nextIdentifierEnd == 0) {
-					nextIdentifierEnd++;
-					nextIdentifier += chr;
-				}
+    auto isUnchainableChar = [&nonChainableChrs](char chr) -> bool {
+      /*
+       * check if chr is part of nonChainableChrs
+      */
+      for (auto nonChainableChr : nonChainableChrs) {
+        if (nonChainableChr == chr)
+          return true;
+      }
 
-				break;
-			}
+      return false;
+      };
 
-			if (!isSkippableChar(chr) || isString) {
-				if (!isComment) {
-					if (chr == '\"') {
-						if (isString) {
-							nextIdentifierEnd++;
-							break;
-						}
+    auto determineIdentifierType = [](char chr) -> IdentifierType {
+      /*
+       * Return Alpha if chr is 
+       * `_`
+       * A character from `A` to `Z`
+       * A character from `a` to `z`
+       * 
+       * Return Numeric if chr is
+       * `.`
+       * `-`
+       * A character from `0` to `9`
+       * 
+       * otherwise return Symbolic
+      */
+      return (chr == '_' || (chr >= 'A' && chr <= 'Z') // _ A-Z a-z
+          || (chr >= 'a' && chr <= 'z')) ? IdentifierType::Alpha
+        : ((chr == '.' || chr == '-' || (chr >= '0' && chr <= '9')  // . 0-9
+          ? IdentifierType::Numeric : IdentifierType::Symbolic));
+      };
 
-						isString = true;
-					}
-					// Handle comment token
-					else if (chr == '#') {
-						isComment = true;
+    IdentifierType identifierType = IdentifierType::Unknown;
+    std::string nextIdentifier;
+    size_t nextIdentifierEnd = 0;
+    bool isString = false;
+    bool isComment = false;
 
-						if (nextIdentifier.size() > 0)
-							break;
-						else 
-							nextIdentifierEnd++; 
+    for (auto chr : line) {
+      if (isComment) {
+        nextIdentifierEnd++;
 
-						continue; 
-					}
+        if (chr == '\n')
+          break;
 
-					if (isString) {
-						nextIdentifierEnd++;
-						nextIdentifier += chr;
-						continue;
-					}
-				}
+        continue;
+      }
 
-				IdentifierType currentIdentifierType = determineIdentifierType(chr); 
+      if (isUnchainableChar(chr)) {
+        if (nextIdentifierEnd == 0) {
+          nextIdentifierEnd++;
+          nextIdentifier += chr;
+        }
 
-				if (identifierType == IdentifierType::Unknown)
-					identifierType = currentIdentifierType; 
-				else {
-					if (identifierType == IdentifierType::Numeric) {
-						// Handles -- operator
-						if (nextIdentifier[0] == '-' && chr == '-') {
-							nextIdentifierEnd++;
-							nextIdentifier += chr;
-							break;
-						}
-						else if (nextIdentifier.size() > 0 && (chr == '-' || currentIdentifierType 
-								!= IdentifierType::Numeric))
-							break;
-					}
+        break;
+      }
 
-					if ((identifierType == IdentifierType::Symbolic
-							&& currentIdentifierType != IdentifierType::Symbolic)
-						|| (identifierType != IdentifierType::Symbolic
-							&& (currentIdentifierType == IdentifierType::Symbolic || chr == '-')))
-						break;
-				}
+      if (!isSkippableChar(chr) || isString) {
+        if (!isComment) {
+          if (chr == '\"') {
+            if (isString) {
+              nextIdentifierEnd++;
+              break;
+            }
 
-				nextIdentifier += chr;
-			}
-			else if (nextIdentifier.size() > 0)
-				break;
+            isString = true;
+          }
+          // Handle comment token
+          else if (chr == '#') {
+            isComment = true;
 
-			nextIdentifierEnd++;
-		}
+            if (nextIdentifier.size() > 0)
+              break;
+            else
+              nextIdentifierEnd++;
 
-		line = line.substr(nextIdentifierEnd);
+            continue;
+          }
 
-		return nextIdentifier;
-	}
-	std::vector<std::string>& extractWords(const std::string& string) {
-		static std::vector<std::string> words;
+          if (isString) {
+            nextIdentifierEnd++;
+            nextIdentifier += chr;
+            continue;
+          }
+        }
 
-		words.clear();
+        IdentifierType currentIdentifierType = determineIdentifierType(chr);
 
-		using WordPair = std::pair<std::string, std::string>;
-		auto seperate = [](const std::string& string, char seperator) -> WordPair {
-			const size_t seperatorIndex = string.find(seperator);
-			return seperatorIndex == std::string::npos ? WordPair(string, "")
-				: WordPair(
-					string.substr(0, seperatorIndex),
-					string.substr(seperatorIndex + 1)
-				);
-		};
+        if (identifierType == IdentifierType::Unknown)
+          identifierType = currentIdentifierType;
+        else {
+          if (identifierType == IdentifierType::Numeric) {
+            // Handles -- operator
+            if (nextIdentifier [0] == '-' && chr == '-') {
+              nextIdentifierEnd++;
+              nextIdentifier += chr;
+              break;
+            }
+            else if (nextIdentifier.size() > 0 && (chr == '-' || currentIdentifierType
+              != IdentifierType::Numeric))
+              break;
+          }
 
-		const char seperator = ' ';
-		WordPair wordPair = seperate(string, seperator);
+          if ((identifierType == IdentifierType::Symbolic
+            && currentIdentifierType != IdentifierType::Symbolic)
+            || (identifierType != IdentifierType::Symbolic
+              && (currentIdentifierType == IdentifierType::Symbolic || chr == '-')))
+            break;
+        }
 
-		// Keeps seperating words until empty
-		while (wordPair.first != "") {
-			words.push_back(wordPair.first);
-			wordPair = seperate(wordPair.second, seperator);
-		}
+        nextIdentifier += chr;
+      }
+      else if (nextIdentifier.size() > 0)
+        break;
 
-		return words;
-	}
-	Token determineTokenType(const std::string& nextIdentifier) {
-		TokenType tokenType = static_cast<TokenType>(0);
-		Token nextToken{ TokenType::Invalid, nextIdentifier};
+      nextIdentifierEnd++;
+    }
 
-		enum class TokenIdentifyMethod { Number, ReservedKeyword };
-		const int firstChr = nextIdentifier[0];
-		const int secondChr = nextIdentifier.size() > 1 ? nextIdentifier[1] : ' '; 
+    line = line.substr(nextIdentifierEnd);
 
-		// Immediately returns strings
-		if (firstChr == '\"') return { TokenType::String, nextIdentifier  };
+    return nextIdentifier;
+  }
+  std::vector<std::string>& extractWords(const std::string& string) {
+    static std::vector<std::string> words;
 
-		const TokenIdentifyMethod tokenIdentificationMethod =
-			(firstChr == '-' && std::isdigit(secondChr)) || std::isdigit(firstChr) 
-				? TokenIdentifyMethod::Number :
-					TokenIdentifyMethod::ReservedKeyword;
+    words.clear();
 
-		switch (tokenIdentificationMethod) {
-		case TokenIdentifyMethod::Number:
-			nextToken.type = TokenType::Number; 
-			goto ReturnToken;
-		case TokenIdentifyMethod::ReservedKeyword:
-			for (auto& tokenIdentifier : TokenIdentifier::tokenIdentifiers) {
-				// Checks if identifier is reserved in the tokenIdentifiers array
-				for (auto& identifier : tokenIdentifier.identifiers) {
-					if (nextIdentifier == identifier) {
-						nextToken = { tokenType, nextIdentifier };
-						goto ReturnToken;
-					}
-				}
+    using WordPair = std::pair<std::string, std::string>;
+    auto seperate = [](const std::string& string, char seperator) -> WordPair {
+      const size_t seperatorIndex = string.find(seperator);
+      return seperatorIndex == std::string::npos ? WordPair(string, "")
+        : WordPair(
+          string.substr(0, seperatorIndex),
+          string.substr(seperatorIndex + 1)
+        );
+      };
 
-				tokenType = static_cast<TokenType>(static_cast<int>(tokenType) + 1);
-			}
+    const char seperator = ' ';
+    WordPair wordPair = seperate(string, seperator);
 
-			nextToken.type = TokenType::Identifier; 
-			break;
-		}
+    // Keeps seperating words until empty
+    while (wordPair.first != "") {
+      words.push_back(wordPair.first);
+      wordPair = seperate(wordPair.second, seperator);
+    }
 
-	ReturnToken:
-		return nextToken;
-	}
-	std::vector<Token>& tokenize(const std::string& sourceCode) {
-		static std::vector<Token> tokens;
+    return words;
+  }
+  Token determineTokenType(const std::string& nextIdentifier) {
+    TokenType tokenType = static_cast<TokenType>(0);
+    Token nextToken{ TokenType::Invalid, nextIdentifier };
 
-		tokens.clear();
+    enum class TokenIdentifyMethod { Number, ReservedKeyword };
+    const int firstChr = nextIdentifier [0];
+    const int secondChr = nextIdentifier.size() > 1 ? nextIdentifier [1] : ' ';
 
-		// New source string that be modified
-		std::string remainingSource = sourceCode;
-		
-		// Inserts escape characters
-		processEscapeCharacters(remainingSource); 
+    // Immediately returns strings
+    if (firstChr == '\"') return { TokenType::String, nextIdentifier };
 
-		// Continues processing tokens while source code still remains
-		while (remainingSource.size() > 0) {
-			std::string nextIdentifier = extractNextIdentifier(remainingSource);
-			
-			if (nextIdentifier.empty()) continue; 
+    const TokenIdentifyMethod tokenIdentificationMethod =
+      (firstChr == '-' && std::isdigit(secondChr)) || std::isdigit(firstChr)
+      ? TokenIdentifyMethod::Number :
+      TokenIdentifyMethod::ReservedKeyword;
 
-			Token nextToken = determineTokenType(nextIdentifier);
+    switch (tokenIdentificationMethod) {
+    case TokenIdentifyMethod::Number:
+      nextToken.type = TokenType::Number;
+      goto ReturnToken;
+    case TokenIdentifyMethod::ReservedKeyword:
+      for (auto& tokenIdentifier : TokenIdentifier::tokenIdentifiers) {
+        // Checks if identifier is reserved in the tokenIdentifiers array
+        for (auto& identifier : tokenIdentifier.identifiers) {
+          if (nextIdentifier == identifier) {
+            nextToken = { tokenType, nextIdentifier };
+            goto ReturnToken;
+          }
+        }
 
-			if (nextToken.type == TokenType::Invalid) {
-				throw Error(
-					Error::Location::Lexer,
-					10,
-					"Invalid identifier " + nextToken.string + " found in source code"
-				); 
-			} 
+        tokenType = static_cast<TokenType>(static_cast<int>(tokenType) + 1);
+      }
 
-			tokens.push_back(nextToken);
-		}
+      nextToken.type = TokenType::Identifier;
+      break;
+    }
 
-		if (tokens.size() > 0) {
-			// Adds EOL token if not placed at end of tokens vector
-			if (tokens.back().type != TokenType::EndOfLine)
-				tokens.push_back({ TokenType::EndOfLine, "EOL" }); 
-		}
-		
-		// Add EOF token to notify the parser when the tokens vector is over
-		tokens.push_back({ TokenType::EndOfFile, "EOF" });
-		return tokens;
-	}
+  ReturnToken:
+    return nextToken;
+  }
+  std::vector<Token>& tokenize(const std::string& sourceCode) {
+    static std::vector<Token> tokens;
 
-	std::ostream& operator<<(std::ostream& ostream, Token token) {
-		std::string value = (token.type == TokenType::EndOfLine) ? "EOL" : token.string; 
-		unprocessEscapeCharacters(value); 
-		ostream << " { Value: " << value << ", Type: " 
-			<< static_cast<int>(token.type) << " }\n"; 
-		return ostream; 
-	}
-	std::ostream& operator<<(std::ostream& ostream, const std::vector<Token>& tokens) {
-		for (auto& token : tokens)
-			ostream << token; 
-		return ostream;
-	}
+    tokens.clear();
+
+    // New source string that be modified
+    std::string remainingSource = sourceCode;
+
+    // Inserts escape characters
+    processEscapeCharacters(remainingSource);
+
+    // Continues processing tokens while source code still remains
+    while (remainingSource.size() > 0) {
+      std::string nextIdentifier = extractNextIdentifier(remainingSource);
+
+      if (nextIdentifier.empty()) continue;
+
+      Token nextToken = determineTokenType(nextIdentifier);
+
+      if (nextToken.type == TokenType::Invalid) {
+        throw Error(
+          Error::Location::Lexer,
+          10,
+          "Invalid identifier " + nextToken.string + " found in source code"
+        );
+      }
+
+      tokens.push_back(nextToken);
+    }
+
+    if (tokens.size() > 0) {
+      // Adds EOL token if not placed at end of tokens vector
+      if (tokens.back().type != TokenType::EndOfLine)
+        tokens.push_back({ TokenType::EndOfLine, "EOL" });
+    }
+
+    // Add EOF token to notify the parser when the tokens vector is over
+    tokens.push_back({ TokenType::EndOfFile, "EOF" });
+    return tokens;
+  }
+
+  std::ostream& operator<<(std::ostream& ostream, Token token) {
+    std::string value = (token.type == TokenType::EndOfLine) ? "EOL" : token.string;
+    unprocessEscapeCharacters(value);
+    ostream << " { Value: " << value << ", Type: "
+      << static_cast<int>(token.type) << " }\n";
+    return ostream;
+  }
+  std::ostream& operator<<(std::ostream& ostream, const std::vector<Token>& tokens) {
+    for (auto& token : tokens)
+      ostream << token;
+    return ostream;
+  }
 }

@@ -4,23 +4,44 @@
 #include <vector>
 
 namespace ns {
-	class Memory {
-	public:
-		Memory(); 
-		~Memory(); 
+  /*
+   * Method in which ns uses memory
+  */
+  class Memory {
+  public:
+    /*
+     * Constructor for memory
+     * Deconstructor for memory
+    */
+    Memory();
+    ~Memory();
 
-		template <typename Type> 
-		Type* create() {
-			Type* pointer = new Type();
-			pointers.push_back(pointer);
-			return pointer;
-		}
-		void clear(); 
+    /*
+     * Template for how to
+     * create a template
+    */
+    template <typename Type>
+    Type* create() {
+      Type* pointer = new Type();
+      pointers.push_back(pointer);
+      return pointer;
+    }
 
-		int getPointerCount() const;
-	private:
-		std::vector<void*> pointers; 
-	};
+    /*
+     * clear memory
+    */
+    void clear();
 
-	extern Memory* globalMemory; 
+    /*
+     * return the const pointer count
+    */
+    int getPointerCount() const;
+  private:
+    /*
+     * vector containing all pointers
+    */
+    std::vector<void*> pointers;
+  };
+
+  extern Memory* globalMemory;
 }
